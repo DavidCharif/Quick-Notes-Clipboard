@@ -82,6 +82,46 @@ const encryption = {
     }
 };
 
+// Constants for storage limits
+const STORAGE_LIMITS = {
+    MAX_NOTE_SIZE_BYTES: 4194304, // 4MB
+    WARNING_THRESHOLD_BYTES: 4194304, // Show warning when 4MB of storage is used
+    MAX_NOTES_COUNT: 10000
+};
+
+// Error handling utility
+const errorHandler = {
+    showError(message, type = 'error') {
+        const errorDiv = document.getElementById('errorMessage') || (() => {
+            const div = document.createElement('div');
+            div.id = 'errorMessage';
+            div.className = 'message ' + type;
+            document.querySelector('.container').prepend(div);
+            return div;
+        })();
+        
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    },
+
+    async checkStorageQuota() {
+        try {
+            const { bytesInUse, QUOTA_BYTES } = await chrome.storage.local.getBytesInUse();
+            if (bytesInUse > STORAGE_LIMITS.WARNING_THRESHOLD_BYTES) {
+                this.showError(`Storage usage: ${Math.round(bytesInUse / 1048576)}MB / ${Math.round(QUOTA_BYTES / 1048576)}MB`, 'warning');
+            }
+            return bytesInUse < QUOTA_BYTES;
+        } catch (error) {
+            console.error('Error checking storage quota:', error);
+            return true; // Assume space available if check fails
+        }
+    }
+};
+
 // Initialize the notes list when popup opens
 document.addEventListener('DOMContentLoaded', async () => {
     await encryption.init();
@@ -135,32 +175,56 @@ async function saveNewNote() {
     const category = categorySelect.value;
     const saveButton = document.getElementById('saveNote');
     
-    if (noteText) {
-        try {
-            saveButton.disabled = true;
-            const notes = await safeStorageGet('notes');
-            const existingNotes = notes.notes || [];
-            
-            // Encrypt the note text
-            const encryptedData = await encryption.encrypt(noteText);
-            
-            const newNote = {
-                id: Date.now(),
-                text: encryptedData,
-                category: category,
-                timestamp: new Date().toISOString()
-            };
-            
-            existingNotes.unshift(newNote);
-            await chrome.storage.local.set({ notes: existingNotes });
-            
-            input.value = '';
-            await loadNotes();
-        } catch (error) {
-            console.error('Error saving note:', error);
-        } finally {
-            saveButton.disabled = false;
+    if (!noteText) {
+        errorHandler.showError('Note text cannot be empty');
+        return;
+    }
+
+    try {
+        saveButton.disabled = true;
+        
+        // Check note size
+        const noteSize = new TextEncoder().encode(noteText).length;
+        if (noteSize > STORAGE_LIMITS.MAX_NOTE_SIZE_BYTES) {
+            throw new Error(`Note too large (${Math.round(noteSize / 1048576)}MB). Maximum size is ${STORAGE_LIMITS.MAX_NOTE_SIZE_BYTES / 1048576}MB`);
         }
+
+        // Check storage quota
+        if (!await errorHandler.checkStorageQuota()) {
+            throw new Error('Storage quota exceeded. Please delete some notes.');
+        }
+
+        const notes = await safeStorageGet('notes');
+        const existingNotes = notes.notes || [];
+        
+        // Check notes count
+        if (existingNotes.length >= STORAGE_LIMITS.MAX_NOTES_COUNT) {
+            throw new Error(`Maximum number of notes (${STORAGE_LIMITS.MAX_NOTES_COUNT}) reached. Please delete some notes.`);
+        }
+
+        // Encrypt the note text
+        const encryptedData = await encryption.encrypt(noteText);
+        if (!encryptedData) {
+            throw new Error('Encryption failed. Please try again.');
+        }
+        
+        const newNote = {
+            id: Date.now(),
+            text: encryptedData,
+            category: category,
+            timestamp: new Date().toISOString()
+        };
+        
+        existingNotes.unshift(newNote);
+        await chrome.storage.local.set({ notes: existingNotes });
+        
+        input.value = '';
+        await loadNotes();
+    } catch (error) {
+        console.error('Error saving note:', error);
+        errorHandler.showError(error.message);
+    } finally {
+        saveButton.disabled = false;
     }
 }
 
@@ -181,14 +245,26 @@ async function loadNotes() {
         }
         
         emptyState.style.display = 'none';
-        notes.forEach(note => {
-            const noteElement = createNoteElement(note);
-            notesList.appendChild(noteElement);
-        });
+        
+        // Check storage quota
+        await errorHandler.checkStorageQuota();
+        
+        for (const note of notes) {
+            try {
+                const noteElement = await createNoteElement(note);
+                if (noteElement) {
+                    notesList.appendChild(noteElement);
+                }
+            } catch (error) {
+                console.error('Error creating note element:', error);
+                // Continue with other notes if one fails
+            }
+        }
 
         filterNotes(); // Apply any active filters
     } catch (error) {
         console.error('Error loading notes:', error);
+        errorHandler.showError('Error loading notes. Please refresh the page.');
     }
 }
 
