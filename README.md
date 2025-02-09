@@ -19,7 +19,7 @@ A secure and efficient Chrome extension for storing and managing encrypted text 
 ### For Development
 1. Clone this repository:
    ```bash
-   git clone [your-repository-url]
+   git clone [https://github.com/DavidCharif/Quick-Notes-Clipboard]
    cd quick-notes-clipboard
    ```
 2. Open Chrome and navigate to `chrome://extensions/`
