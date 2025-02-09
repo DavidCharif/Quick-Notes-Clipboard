@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Notes Clipboard Options</title>
+    <style>
+        body {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+            font-family: Arial, sans-serif;
+        }
+        .option-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #444;
+            margin-top: 0;
+        }
+        .option-row {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label {
+            flex: 1;
+        }
+        select, input[type="number"] {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        input[type="color"] {
+            width: 50px;
+            height: 30px;
+            padding: 0;
+            border: none;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .category-manager {
+            margin-top: 20px;
+        }
+        .category-list {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+            padding: 5px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        .category-item input {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .status-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        .error {
+            background: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quick Notes Clipboard Settings</h1>
+    
+    <div class="option-section">
+        <h2>Display Settings</h2>
+        <div class="option-row">
+            <label for="defaultCategory">Default Category:</label>
+            <select id="defaultCategory">
+                <option value="sql">SQL</option>
+                <option value="url">URLs</option>
+                <option value="snippet">Code Snippets</option>
+                <option value="command">Commands</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="option-row">
+            <label for="maxNotesDisplay">Maximum Notes to Display:</label>
+            <input type="number" id="maxNotesDisplay" min="5" max="100" value="20">
+        </div>
+        <div class="option-row">
+            <label for="notesOrder">Notes Display Order:</label>
+            <select id="notesOrder">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="alphabetical">Alphabetical</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="option-section">
+        <h2>Category Colors</h2>
+        <div class="option-row">
+            <label for="sqlColor">SQL Category Color:</label>
+            <input type="color" id="sqlColor" value="#007bff">
+        </div>
+        <div class="option-row">
+            <label for="urlColor">URL Category Color:</label>
+            <input type="color" id="urlColor" value="#28a745">
+        </div>
+        <div class="option-row">
+            <label for="snippetColor">Code Snippet Color:</label>
+            <input type="color" id="snippetColor" value="#dc3545">
+        </div>
+        <div class="option-row">
+            <label for="commandColor">Command Color:</label>
+            <input type="color" id="commandColor" value="#ffc107">
+        </div>
+        <div class="option-row">
+            <label for="otherColor">Other Color:</label>
+            <input type="color" id="otherColor" value="#6c757d">
+        </div>
+    </div>
+
+    <div class="option-section">
+        <h2>Backup & Security</h2>
+        <div class="option-row">
+            <label for="autoBackup">Auto Backup:</label>
+            <select id="autoBackup">
+                <option value="never">Never</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+            </select>
+        </div>
+        <div class="option-row">
+            <label for="encryptionEnabled">Enable Encryption:</label>
+            <input type="checkbox" id="encryptionEnabled" checked disabled>
+            <span style="font-size: 0.9em; color: #666;">(Always enabled for security)</span>
+        </div>
+        <button id="exportData">Export All Notes</button>
+        <button id="importData">Import Notes</button>
+    </div>
+
+    <div class="option-section">
+        <h2>Custom Categories</h2>
+        <div class="category-manager">
+            <div class="category-list" id="categoryList">
+                <!-- Categories will be added here dynamically -->
+            </div>
+            <button id="addCategory">Add New Category</button>
+        </div>
+    </div>
+
+    <button id="saveOptions">Save Settings</button>
+    <div id="statusMessage" class="status-message"></div>
+
+    <script src="options.js"></script>
+</body>
+</html>
