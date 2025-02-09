@@ -171,35 +171,57 @@
       0% { transform: translate(-50%, -50%) rotate(0deg); }
       100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
+
+    .error-container {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div id="errorMessage" class="message" style="display: none;"></div>
-    <div class="filters-container">
-      <input type="text" id="searchInput" placeholder="Search notes...">
-      <select id="categoryFilter" title="Category Filter">
-        <option value="">All Categories</option>
-        <option value="sql">SQL</option>
-        <option value="url">URLs</option>
-        <option value="snippet">Code Snippets</option>
-        <option value="command">Commands</option>
-        <option value="other">Other</option>
-      </select>
+    <div id="error-container" style="display: none;" class="error-container">
+      <span id="error-message"></span>
     </div>
-    <div class="input-group">
-      <input type="text" id="noteInput" placeholder="Enter your text here...">
-      <select id="categorySelect" title="Note Category">
-        <option value="sql">SQL</option>
-        <option value="url">URLs</option>
-        <option value="snippet">Code Snippets</option>
-        <option value="command">Commands</option>
-        <option value="other">Other</option>
-      </select>
-      <button id="saveNote">Save</button>
+    <div class="header">
+      <h1>Quick Notes</h1>
+      <span id="notes-count">0 notes</span>
     </div>
-    <div id="notesList"></div>
-    <div id="emptyState" style="display: none;">No notes yet! Add your first note above.</div>
+    <div id="notes-container"></div>
+    <div id="empty-state" style="display: none;">
+      <p>No notes yet. Add your first note!</p>
+    </div>
+    <div class="add-note-section">
+      <div id="errorMessage" class="message" style="display: none;"></div>
+      <div class="filters-container">
+        <input type="text" id="searchInput" placeholder="Search notes...">
+        <select id="categoryFilter" title="Category Filter">
+          <option value="">All Categories</option>
+          <option value="sql">SQL</option>
+          <option value="url">URLs</option>
+          <option value="snippet">Code Snippets</option>
+          <option value="command">Commands</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <input type="text" id="noteInput" placeholder="Enter your text here...">
+        <select id="categorySelect" title="Note Category">
+          <option value="sql">SQL</option>
+          <option value="url">URLs</option>
+          <option value="snippet">Code Snippets</option>
+          <option value="command">Commands</option>
+          <option value="other">Other</option>
+        </select>
+        <button id="saveNote">Save</button>
+      </div>
+      <div id="notesList"></div>
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>
